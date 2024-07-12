@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Garden Blueprint</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <div id="app">
+        <div id="header">
+            <div id="zone-selector">
+                <label for="zone">Zone Selector:</label>
+                <input type="text" id="zone" placeholder="Enter your zone">
+            </div>
+            <div id="login">
+                <label for="user-login">Login:</label>
+                <input type="text" id="user-login" placeholder="Enter your username">
+            </div>
+        </div>
+        <div id="plant-library">
+            <h2>Plant Library</h2>
+            <input type="text" id="plant-search" placeholder="Search for plants">
+            <ul id="plant-list"></ul>
+        </div>
+        <div id="garden-blueprint">
+            <h2>Garden Blueprint</h2>
+            <div id="grid-container"></div>
+            <div id="grid-selector">
+                <label for="grid-size">Grid Size:</label>
+                <input type="text" id="grid-size" placeholder="e.g., 8x8">
+            </div>
+        </div>
+        <div id="user-garden-library">
+            <h2>Your Garden Library</h2>
+            <ul id="user-plant-list"></ul>
+        </div>
+        <div id="actions">
+            <button id="print">Print</button>
+            <button id="email">Email</button>
+            <button id="download">Download</button>
+        </div>
+        <div id="calendar">
+            <h2>Automated Start Date Calendar</h2>
+            <table id="start-date-calendar">
+                <thead>
+                    <tr>
+                        <th>M</th>
+                        <th>T</th>
+                        <th>W</th>
+                        <th>TH</th>
+                        <th>FRI</th>
+                        <th>SAT</th>
+                        <th>SUN</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <script src="./app.js"></script>
+</body>
+</html>
+
