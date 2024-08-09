@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-   
     // Grid Creator
     const gridSizeInput = document.getElementById('grid-size');
     const gridContainer = document.getElementById('grid-container');
@@ -29,28 +28,42 @@ document.addEventListener('DOMContentLoaded', () => {
         event.target.appendChild(draggableElement);
     }
 
-    // Plant Search
-    const plantSearch = document.getElementById('plant-search');
-    const plantList = document.getElementById('plant-list');
 
-    plantSearch.addEventListener('input', searchPlants);
 
-    async function searchPlants() {
-        const searchTerm = plantSearch.value;
-        const url = `https://perenual.com/api/species-list?key=sk-936h668c7d202f5eb6181&search=${searchTerm}`;
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            plantList.innerHTML = '';
-            data.results.forEach(plant => {
-                const listItem = document.createElement('li');
-                listItem.textContent = plant.common_name;
-                plantList.appendChild(listItem);
-            });
-        } catch (error) {
-            console.error('Error fetching plant data:', error);
-        }
-    }
+const plantCards = document.getElementById('plant-cards');
+const searchInput = document.getElementById('plant-search');
+const searchButton = document.getElementById('plant-button');
+
+const requestOptions = {
+    method: 'GET',
+    redirect: 'follow'
+  };
+  
+const searchResponse = async () => {
+    fetch(`https://perenual.com/api/species-list?key=sk-936h668c7d202f5eb6181&q=${searchInput.value}`, requestOptions)
+    .then(response => response.json())
+    .then(result => {
+        firstResult = result.data[0];
+        plantCards.innerHTML += `<div class="card"><h2>${firstResult.common_name}</h2><p>${firstResult.scientific_name}</p><img src="${firstResult.default_image.thumbnail}"></div>`;
+        console.log(firstResult);
+    })
+    .catch(error => {
+        console.log('error', error);
+        alert('No plants found');
+    });
+}
+
+
+
+searchButton.onclick = searchResponse;
+  
+  
+       
+
+
+
+  
+  
 
     // Calendar
     let events = [];
@@ -58,43 +71,43 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedEventIndex = null;
 
     function renderCalendar() {
-        const month = currentDate.getMonth();
-        const year = currentDate.getFullYear();
+        let month = currentDate.getMonth();
+        let year = currentDate.getFullYear();
         document.getElementById('month-year').innerText = `${monthNames[month]} ${year}`;
 
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const daysElement = document.getElementById('calendar-body');
+        let firstDay = new Date(year, month, 1).getDay();
+        let daysInMonth = new Date(year, month + 1, 0).getDate();
+        let daysElement = document.getElementById('calendar-body');
         daysElement.innerHTML = '';
 
         for (let i = 0; i < firstDay; i++) {
-            const emptyCell = document.createElement('div');
+            let emptyCell = document.createElement('div');
             daysElement.appendChild(emptyCell);
         }
 
         for (let i = 1; i <= daysInMonth; i++) {
-            const dayCell = document.createElement('div');
+            let dayCell = document.createElement('div');
             dayCell.innerText = i;
             daysElement.appendChild(dayCell);
 
             events.forEach((event, index) => {
-                const eventDate = new Date(event.date);
+                let eventDate = new Date(event.date);
                 if (eventDate.getDate() === i && eventDate.getMonth() === month && eventDate.getFullYear() === year) {
-                    const eventElement = document.createElement('div');
+                    let eventElement = document.createElement('div');
                     eventElement.className = 'event';
                     eventElement.innerText = event.title;
 
-                    const buttonsDiv = document.createElement('div');
+                    let buttonsDiv = document.createElement('div');
                     buttonsDiv.className = 'event-buttons';
                     eventElement.appendChild(buttonsDiv);
 
-                    const editButton = document.createElement('button');
+                    let editButton = document.createElement('button');
                     editButton.className = 'event-button';
                     editButton.innerText = '✎';
                     editButton.onclick = (e) => { e.stopPropagation(); editEvent(index); };
                     buttonsDiv.appendChild(editButton);
 
-                    const deleteButton = document.createElement('button');
+                    let deleteButton = document.createElement('button');
                     deleteButton.className = 'event-button';
                     deleteButton.innerText = '✖';
                     deleteButton.onclick = (e) => { e.stopPropagation(); deleteEvent(index); };
@@ -117,8 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addEvent() {
-        const title = document.getElementById('event-title').value;
-        const date = document.getElementById('event-date').value;
+        let title = document.getElementById('event-title').value;
+        let date = document.getElementById('event-date').value;
         if (title && date) {
             events.push({ title, date });
             renderCalendar();
@@ -131,15 +144,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function editEvent(index) {
         selectedEventIndex = index;
-        const event = events[index];
+        let event = events[index];
         document.getElementById('edit-event-title').value = event.title;
         document.getElementById('edit-event-date').value = event.date;
         document.getElementById('edit-modal').style.display = 'block';
     }
 
     function saveEvent() {
-        const title = document.getElementById('edit-event-title').value;
-        const date = document.getElementById('edit-event-date').value;
+        let title = document.getElementById('edit-event-title').value;
+        let date = document.getElementById('edit-event-date').value;
         if (title && date) {
             events[selectedEventIndex] = { title, date };
             renderCalendar();
@@ -166,53 +179,88 @@ document.addEventListener('DOMContentLoaded', () => {
     window.onload = renderCalendar;
 
     // Weather
-    const validateZipCode = (zipCode) => {
-        const zipCodeRegex = /^(\d{5}(-\d{4})?|\w+, \w+)$/;
-        if (!zipCodeRegex.test(zipCode)) {
-            alert("Invalid input. Please input a valid zipcode OR city, state");
-            return false;
-        }
-        return true;
-    };
+    let cityInput = document.getElementById('city_input'),
+        searchBtn = document.getElementById('searchBtn'),
+        api_key = 'a243c44257e0eb271a165113d704a3b3';
+    const currentWeatherCard = document.querySelectorAll('.weather-left .card')[0];
+    const fiveDaysForecastCard = document.querySelector('.day-forecast');
 
-    const weatherInfoBox = document.getElementById("weather-info");
-    const zipcodeBox = document.getElementById('destination');
-    const WeatherAPIKey = "4e0bb2c968d14bfebc164304240908";
+    function getWeatherDetails(name, lat, lon, country) {
+        const FORECAST_API_URL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${api_key}`;
+        const WEATHER_API_URL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${api_key}`;
 
-    const getWeatherInfo = async () => {
-        const zipCode = zipcodeBox.value;
-        if (!validateZipCode(zipCode)) {
-            return;
-        }
-        const apiUrl = `https://api.weatherapi.com/v1/forecast.json?key=${WeatherAPIKey}&q=${zipCode}&days=7`;
-
-        try {
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-
-            weatherInfoBox.innerHTML = `<h2>${data.location.name}, ${data.location.region}</h2> Forecast for ${data.forecast.forecastday[0].date} through ${data.forecast.forecastday[6].date}`;
-            data.forecast.forecastday.forEach(day => {
-                const date = new Date(day.date);
-                const weekday = date.toLocaleString('en-US', { weekday: 'short' });
-                weatherInfoBox.innerHTML += `<p>${weekday}: ${day.day.condition.text} with a high of ${day.day.maxtemp_f}°F and a low of ${day.day.mintemp_f}°F.</p>`;
-
-                const icon = document.createElement("img");
-                icon.src = `https:${day.day.condition.icon}`;
-                icon.classList.add("weather-icon");
-                weatherInfoBox.appendChild(icon);
+        fetch(WEATHER_API_URL)
+            .then(res => res.json())
+            .then(data => {
+                let date = new Date();
+                currentWeatherCard.innerHTML = `
+                    <div class="current-weather">
+                        <div class="details">
+                            <p>Now</p>
+                            <h2>${(data.main.temp - 273.15).toFixed(2)}°C</h2>
+                            <p>${data.weather[0].description}</p>
+                        </div>
+                        <div class="weather-icon">
+                            <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="card-footer">
+                        <p><i class="fa-light fa-calendar"></i> ${days[date.getDay()]}, ${date.getDate()}, ${months[date.getMonth()]} ${date.getFullYear()}</p>
+                        <p><i class="fa-light fa-location-dot"></i> ${name}, ${country}</p>
+                    </div>`;
+            })
+            .catch(() => {
+                alert('Failed to fetch weather data');
             });
 
-            const resetButton = document.createElement("button");
-            resetButton.textContent = "Reset";
-            resetButton.addEventListener("click", () => {
-                weatherInfoBox.innerHTML = "";
-                zipcodeBox.value = "";
-            });
-            weatherInfoBox.appendChild(resetButton);
-        } catch (error) {
-            console.error('Error fetching weather data:', error);
-        }
-    };
+        fetch(FORECAST_API_URL)
+            .then(res => res.json())
+            .then(data => {
+                let uniqueForecastDays = [];
+                let fiveDaysForecast = data.list.filter(forecast => {
+                    let forecastDate = new Date(forecast.dt_txt).getDate();
+                    if (!uniqueForecastDays.includes(forecastDate)) {
+                        return uniqueForecastDays.push(forecastDate);
+                    }
+                });
 
-    document.getElementById('get-weather').addEventListener('click', getWeatherInfo);
+                fiveDaysForecastCard.innerHTML = '';
+                for (let i = 1; i < fiveDaysForecast.length; i++) {
+                    let date = new Date(fiveDaysForecast[i].dt_txt);
+                    fiveDaysForecastCard.innerHTML += `
+                        <div class="forecast-item">
+                            <div class="icon-wrapper">
+                                <img src="https://openweathermap.org/img/wn/${fiveDaysForecast[i].weather[0].icon}.png" alt="" />
+                            </div>
+                            <span>${(fiveDaysForecast[i].main.temp - 273.15).toFixed(2)}°C</span>
+                            <p>${date.getDate()} ${months[date.getMonth()]}</p>
+                            <p>${days[date.getDay()]}</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(() => {
+                alert('Failed to fetch forecast data');
+            });
+    }
+
+    searchBtn.addEventListener('click', () => {
+        let cityName = cityInput.value;
+        const GEOCODING_API_URL = `https://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=1&appid=${api_key}`;
+
+        fetch(GEOCODING_API_URL)
+            .then(res => res.json())
+            .then(data => {
+                if (data.length > 0) {
+                    let { lat, lon, country } = data[0];
+                    getWeatherDetails(cityName, lat, lon, country);
+                } else {
+                    alert('City not found');
+                }
+            })
+            .catch(() => {
+                alert('Failed to fetch geocoding data');
+            });
+    });
 });
